@@ -1,15 +1,16 @@
 import type { Message } from '@extension/storage';
 import { ACTOR_PROFILES } from '../types/message';
-import { memo } from 'react';
+import { memo, RefObject } from 'react';
 
 interface MessageListProps {
   messages: Message[];
+  messagesEndRef?: RefObject<HTMLDivElement>;
   isDarkMode?: boolean;
 }
 
-export default memo(function MessageList({ messages, isDarkMode = false }: MessageListProps) {
+export default memo(function MessageList({ messages, messagesEndRef, isDarkMode = false }: MessageListProps) {
   return (
-    <div className="max-w-full space-y-4">
+    <div className="max-w-full space-y-4 overflow-y-auto flex-1">
       {messages.map((message, index) => (
         <MessageBlock
           key={`${message.actor}-${message.timestamp}-${index}`}
@@ -18,6 +19,7 @@ export default memo(function MessageList({ messages, isDarkMode = false }: Messa
           isDarkMode={isDarkMode}
         />
       ))}
+      {messagesEndRef && <div ref={messagesEndRef} />}
     </div>
   );
 });

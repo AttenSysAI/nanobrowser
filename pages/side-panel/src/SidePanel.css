@@ -58,7 +58,7 @@ code {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   background-color: transparent;
   border-bottom: 1px solid rgba(14, 165, 233, 0.2);
 }
@@ -77,8 +77,25 @@ code {
 
 .header-icons {
   display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
   align-items: center;
+}
+
+.header-icons button, 
+.header-icons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  padding: 0.35rem;
+  border-radius: 0.25rem;
+}
+
+.header-icons button:hover, 
+.header-icons a:hover {
+  transform: scale(1.15);
+  opacity: 1;
+  background-color: rgba(14, 165, 233, 0.1);
 }
 
 .header-icon {
@@ -162,4 +179,12 @@ code {
   .dark-mode-border {
     border-color: #475569 !important; /* slate-600 */
   }
+}
+
+/* Main content area */
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
 }

@@ -4,13 +4,18 @@ import { RxDiscordLogo } from 'react-icons/rx';
 import { FiSettings } from 'react-icons/fi';
 import { PiPlusBold } from 'react-icons/pi';
 import { GrHistory } from 'react-icons/gr';
+import { VscProject } from 'react-icons/vsc';
 import { type Message, Actors, chatHistoryStore } from '@extension/storage';
 import MessageList from './components/MessageList';
 import ChatInput from './components/ChatInput';
 import ChatHistoryList from './components/ChatHistoryList';
 import TemplateList from './components/TemplateList';
+import ProjectList from './components/ProjectList';
+import TestCaseList from './components/TestCaseList';
 import { EventType, type AgentEvent, ExecutionState } from './types/event';
 import { defaultTemplates } from './templates';
+import { TestCase } from './types/project';
+import TestCaseDetails from './components/TestCaseDetails';
 import './SidePanel.css';
 
 const SidePanel = () => {
@@ -19,10 +24,14 @@ const SidePanel = () => {
   const [showStopButton, setShowStopButton] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showProjects, setShowProjects] = useState(false);
+  const [showTestCases, setShowTestCases] = useState(false);
   const [chatSessions, setChatSessions] = useState<Array<{ id: string; title: string; createdAt: number }>>([]);
   const [isFollowUpMode, setIsFollowUpMode] = useState(false);
   const [isHistoricalSession, setIsHistoricalSession] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [currentTestCase, setCurrentTestCase] = useState<TestCase | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const portRef = useRef<chrome.runtime.Port | null>(null);
   const heartbeatIntervalRef = useRef<number | null>(null);
@@ -482,67 +491,197 @@ const SidePanel = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Add project-related handlers
+  const handleShowProjects = () => {
+    setShowProjects(true);
+    setShowHistory(false);
+    setShowTestCases(false);
+  };
+
+  const handleProjectSelect = (projectId: string) => {
+    setCurrentProjectId(projectId);
+    setShowProjects(false);
+    setShowTestCases(true);
+  };
+
+  const handleBackFromProjects = () => {
+    setShowProjects(false);
+  };
+
+  const handleBackFromTestCases = () => {
+    setShowTestCases(false);
+    setShowProjects(true);
+  };
+
+  const handleTestCaseSelect = (testCase: TestCase) => {
+    setCurrentTestCase(testCase);
+    setShowTestCases(false);
+
+    // Show test case details with an option to execute
+    const userMessage = {
+      actor: Actors.SYSTEM,
+      content: `Selected test case: ${testCase.name}\n\nDescription: ${testCase.description}\n\nSteps: ${testCase.steps.length}`,
+      timestamp: Date.now(),
+    };
+
+    appendMessage(userMessage);
+
+    // No longer adding steps to the input field
+  };
+
+  // Update handleExecuteTestCase function
+  const handleExecuteTestCase = async (testCase: TestCase) => {
+    if (!testCase || !testCase.steps || testCase.steps.length === 0) {
+      appendMessage({
+        actor: Actors.SYSTEM,
+        content: 'Cannot execute test case: No steps found',
+        timestamp: Date.now(),
+      });
+      return;
+    }
+
+    try {
+      const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      const tabId = tabs[0]?.id;
+      if (!tabId) {
+        throw new Error('No active tab found');
+      }
+
+      setInputEnabled(false);
+      setShowStopButton(true);
+
+      // Create a new chat session for this test case
+      const newSession = await chatHistoryStore.createSession(`Test Case: ${testCase.name}`);
+
+      // Store the session ID in both state and ref
+      const sessionId = newSession.id;
+      setCurrentSessionId(sessionId);
+      sessionIdRef.current = sessionId;
+
+      const userMessage = {
+        actor: Actors.USER,
+        content: `Executing test case: ${testCase.name}\n\n${testCase.steps.join('\n')}`,
+        timestamp: Date.now(),
+      };
+
+      // Add message to the chat
+      appendMessage(userMessage, sessionIdRef.current);
+
+      // Clear the current test case to show the chat view
+      setCurrentTestCase(null);
+
+      // Setup connection if not exists
+      if (!portRef.current) {
+        setupConnection();
+      }
+
+      // Send as new task
+      await sendMessage({
+        type: 'new_task',
+        task: testCase.steps.join('\n'),
+        taskId: sessionIdRef.current,
+        tabId,
+      });
+
+      console.log('test_case_execution sent', testCase.name, tabId, sessionIdRef.current);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('Test case execution error', errorMessage);
+      appendMessage({
+        actor: Actors.SYSTEM,
+        content: `Failed to execute test case: ${errorMessage}`,
+        timestamp: Date.now(),
+      });
+      setInputEnabled(true);
+      setShowStopButton(false);
+      stopConnection();
+    }
+  };
+
+  // Add this function after handleTestCaseSelect
+  const handleClearTestCase = () => {
+    setCurrentTestCase(null);
+  };
+
   return (
     <div>
       <div
         className={`flex flex-col h-[100vh] ${isDarkMode ? 'bg-slate-900' : "bg-[url('/bg.jpg')] bg-cover bg-no-repeat"} overflow-hidden border ${isDarkMode ? 'border-sky-800' : 'border-[rgb(186,230,253)]'} rounded-2xl`}>
         <header className="header relative">
           <div className="header-logo">
-            {showHistory ? (
+            {showHistory || showProjects || showTestCases ? (
               <button
                 type="button"
-                onClick={handleBackToChat}
-                className={`${isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'} cursor-pointer`}
-                aria-label="Back to chat">
+                onClick={() => {
+                  if (showHistory) handleBackToChat();
+                  if (showProjects) handleBackFromProjects();
+                  if (showTestCases) handleBackFromTestCases();
+                }}
+                className={`${isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'} cursor-pointer text-lg`}
+                aria-label="Back">
                 ← Back
               </button>
             ) : (
-              <img src="/icon-128.png" alt="Extension Logo" className="h-6 w-6" />
+              <img src="/icon-128.png" alt="Extension Logo" className="h-8 w-8" />
             )}
           </div>
           <div className="header-icons">
-            {!showHistory && (
+            {!showHistory && !showProjects && !showTestCases && (
               <>
                 <button
                   type="button"
+                  className={`${
+                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
+                  } cursor-pointer`}
                   onClick={handleNewChat}
-                  onKeyDown={e => e.key === 'Enter' && handleNewChat()}
-                  className={`header-icon ${isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'} cursor-pointer`}
-                  aria-label="New Chat"
-                  tabIndex={0}>
-                  <PiPlusBold size={20} />
+                  aria-label="New chat">
+                  <PiPlusBold size={24} />
                 </button>
                 <button
                   type="button"
+                  className={`${
+                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
+                  } cursor-pointer`}
                   onClick={handleLoadHistory}
-                  onKeyDown={e => e.key === 'Enter' && handleLoadHistory()}
-                  className={`header-icon ${isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'} cursor-pointer`}
-                  aria-label="Load History"
-                  tabIndex={0}>
-                  <GrHistory size={20} />
+                  aria-label="Chat history">
+                  <GrHistory size={24} />
                 </button>
+                <button
+                  type="button"
+                  className={`${
+                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
+                  } cursor-pointer`}
+                  onClick={handleShowProjects}
+                  aria-label="Projects">
+                  <VscProject size={24} />
+                </button>
+                <a
+                  href="https://discord.gg/3MFRbcgAtx"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${
+                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
+                  } cursor-pointer`}
+                  aria-label="Discord">
+                  <RxDiscordLogo size={24} />
+                </a>
+                <a
+                  href="/options/index.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${
+                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
+                  } cursor-pointer`}
+                  aria-label="Settings">
+                  <FiSettings size={24} />
+                </a>
               </>
             )}
-            <a
-              href="https://discord.gg/NN3ABHggMK"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`header-icon ${isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'}`}>
-              <RxDiscordLogo size={20} />
-            </a>
-            <button
-              type="button"
-              onClick={() => chrome.runtime.openOptionsPage()}
-              onKeyDown={e => e.key === 'Enter' && chrome.runtime.openOptionsPage()}
-              className={`header-icon ${isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'} cursor-pointer`}
-              aria-label="Settings"
-              tabIndex={0}>
-              <FiSettings size={20} />
-            </button>
           </div>
         </header>
-        {showHistory ? (
-          <div className="flex-1 overflow-hidden">
+
+        <main className="main">
+          {showHistory && (
             <ChatHistoryList
               sessions={chatSessions}
               onSessionSelect={handleSessionSelect}
@@ -550,45 +689,37 @@ const SidePanel = () => {
               visible={true}
               isDarkMode={isDarkMode}
             />
-          </div>
-        ) : (
-          <>
-            {messages.length === 0 && (
-              <>
-                <div
-                  className={`border-t ${isDarkMode ? 'border-sky-900' : 'border-sky-100'} backdrop-blur-sm p-2 shadow-sm mb-2`}>
-                  <ChatInput
-                    onSendMessage={handleSendMessage}
-                    onStopTask={handleStopTask}
-                    disabled={!inputEnabled || isHistoricalSession}
-                    showStopButton={showStopButton}
-                    setContent={setter => {
-                      setInputTextRef.current = setter;
-                    }}
-                    isDarkMode={isDarkMode}
-                  />
-                </div>
-                <div>
+          )}
+          {showProjects && (
+            <ProjectList
+              onProjectSelect={handleProjectSelect}
+              onBackToChat={handleBackFromProjects}
+              isDarkMode={isDarkMode}
+            />
+          )}
+          {showTestCases && currentProjectId && (
+            <TestCaseList
+              projectId={currentProjectId}
+              onTestCaseSelect={handleTestCaseSelect}
+              onBackToProjects={handleBackFromTestCases}
+              isDarkMode={isDarkMode}
+            />
+          )}
+          {!showHistory && !showProjects && !showTestCases && !currentTestCase && (
+            <>
+              <MessageList messages={messages} isDarkMode={isDarkMode} />
+              <div className="flex-none p-2">
+                {messages.length === 0 && (
                   <TemplateList
                     templates={defaultTemplates}
                     onTemplateSelect={handleTemplateSelect}
                     isDarkMode={isDarkMode}
                   />
-                </div>
-              </>
-            )}
-            <div
-              className={`flex-1 overflow-y-scroll overflow-x-hidden scrollbar-gutter-stable p-4 scroll-smooth ${isDarkMode ? 'bg-slate-900 bg-opacity-80' : ''}`}>
-              <MessageList messages={messages} isDarkMode={isDarkMode} />
-              <div ref={messagesEndRef} />
-            </div>
-            {messages.length > 0 && (
-              <div
-                className={`border-t ${isDarkMode ? 'border-sky-900' : 'border-sky-100'} backdrop-blur-sm p-2 shadow-sm`}>
+                )}
                 <ChatInput
                   onSendMessage={handleSendMessage}
                   onStopTask={handleStopTask}
-                  disabled={!inputEnabled || isHistoricalSession}
+                  disabled={!inputEnabled}
                   showStopButton={showStopButton}
                   setContent={setter => {
                     setInputTextRef.current = setter;
@@ -596,9 +727,23 @@ const SidePanel = () => {
                   isDarkMode={isDarkMode}
                 />
               </div>
-            )}
-          </>
-        )}
+            </>
+          )}
+
+          {!showHistory && !showProjects && !showTestCases && currentTestCase && (
+            <>
+              <MessageList messages={messages} isDarkMode={isDarkMode} />
+              <div className="flex-none p-2">
+                <TestCaseDetails
+                  testCase={currentTestCase}
+                  onExecute={handleExecuteTestCase}
+                  onBack={handleClearTestCase}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
+            </>
+          )}
+        </main>
       </div>
     </div>
   );
