@@ -1,17 +1,12 @@
 import { Project, ProjectsResponse, TestCase, TestCasesResponse } from '../types/project';
 
-/**
- * Base API client for communicating with the backend
- */
 export class ApiClient {
   private baseUrl: string;
   private headers: Record<string, string>;
 
   constructor() {
-    // Use environment variables - these will need to be set when building the extension
-    this.baseUrl = import.meta.env.VITE_API_URL || 'https://api.example.com';
+    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-    // Set up default headers with Bearer token authentication
     const token = import.meta.env.VITE_BEARER_TOKEN || '';
 
     this.headers = {
@@ -20,12 +15,8 @@ export class ApiClient {
     };
   }
 
-  /**
-   * Makes a GET request to the API
-   */
   async get<T>(path: string, queryParams?: Record<string, string | number>): Promise<T> {
     try {
-      // Build URL with query parameters
       let url = `${this.baseUrl}${path}`;
       if (queryParams) {
         const params = new URLSearchParams();
@@ -35,7 +26,6 @@ export class ApiClient {
         url += `?${params.toString()}`;
       }
 
-      // Make the request
       const response = await fetch(url, {
         method: 'GET',
         headers: this.headers,
@@ -55,9 +45,6 @@ export class ApiClient {
     }
   }
 
-  /**
-   * Makes a POST request to the API
-   */
   async post<T>(path: string, data: unknown): Promise<T> {
     try {
       const response = await fetch(`${this.baseUrl}${path}`, {
@@ -81,31 +68,19 @@ export class ApiClient {
   }
 }
 
-// API service instance
 const apiClient = new ApiClient();
 
-// Project service functions
 export const projectService = {
-  /**
-   * Get all projects with pagination
-   */
   getProjects: async (page = 1, size = 10): Promise<ProjectsResponse> => {
     return apiClient.get<ProjectsResponse>('/api/projects/', { page, size });
   },
 
-  /**
-   * Get a project by ID
-   */
   getProjectById: async (projectId: string): Promise<Project> => {
     return apiClient.get<Project>(`/api/projects/${projectId}`);
   },
 };
 
-// TestCase service functions
 export const testCaseService = {
-  /**
-   * Get all test cases with pagination and optional filtering
-   */
   getTestCases: async (page = 1, size = 10, projectId?: string, status?: string): Promise<TestCasesResponse> => {
     const params: Record<string, string | number> = { page, size };
     if (projectId) params.project_id = projectId;
@@ -114,15 +89,22 @@ export const testCaseService = {
     return apiClient.get<TestCasesResponse>('/api/testcases/', params);
   },
 
-  /**
-   * Get a test case by ID
-   */
   getTestCaseById: async (testCaseId: string): Promise<TestCase> => {
     return apiClient.get<TestCase>(`/api/testcases/${testCaseId}`);
+  },
+};
+
+export const testExecutionService = {
+  submitResult: async (testCaseId: string, status: 'passed' | 'failed'): Promise<any> => {
+    return apiClient.post<any>('/api/test-executions/', {
+      test_case_id: testCaseId,
+      status,
+    });
   },
 };
 
 export default {
   projectService,
   testCaseService,
+  testExecutionService,
 };

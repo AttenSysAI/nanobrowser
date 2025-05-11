@@ -5,6 +5,7 @@ import { FiSettings } from 'react-icons/fi';
 import { PiPlusBold } from 'react-icons/pi';
 import { GrHistory } from 'react-icons/gr';
 import { VscProject } from 'react-icons/vsc';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 import { type Message, Actors, chatHistoryStore } from '@extension/storage';
 import MessageList from './components/MessageList';
 import ChatInput from './components/ChatInput';
@@ -16,7 +17,10 @@ import { EventType, type AgentEvent, ExecutionState } from './types/event';
 import { defaultTemplates } from './templates';
 import { TestCase } from './types/project';
 import TestCaseDetails from './components/TestCaseDetails';
+import { testExecutionService } from './services/api';
 import './SidePanel.css';
+
+const DEBUG_MODE = true; // Set to true to enable debug logging
 
 const SidePanel = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -32,11 +36,16 @@ const SidePanel = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const [currentTestCase, setCurrentTestCase] = useState<TestCase | null>(null);
+  const [testExecutionCompleted, setTestExecutionCompleted] = useState(false);
+  const [executedTestCaseId, setExecutedTestCaseId] = useState<string | null>(null);
+
+  // Create refs for tracking test execution
   const sessionIdRef = useRef<string | null>(null);
   const portRef = useRef<chrome.runtime.Port | null>(null);
   const heartbeatIntervalRef = useRef<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const setInputTextRef = useRef<((text: string) => void) | null>(null);
+  const executedTestCaseIdRef = useRef<string | null>(null); // Add ref for test case ID
 
   // Check for dark mode preference
   useEffect(() => {
@@ -54,6 +63,18 @@ const SidePanel = () => {
   useEffect(() => {
     sessionIdRef.current = currentSessionId;
   }, [currentSessionId]);
+
+  // Add effect to sync executedTestCaseId with its ref
+  useEffect(() => {
+    executedTestCaseIdRef.current = executedTestCaseId;
+  }, [executedTestCaseId]);
+
+  // Add explicit logging for state changes - only if DEBUG_MODE is enabled
+  useEffect(() => {
+    if (DEBUG_MODE) {
+      console.log('testExecutionCompleted changed:', testExecutionCompleted);
+    }
+  }, [testExecutionCompleted]);
 
   const appendMessage = useCallback((newMessage: Message, sessionId?: string | null) => {
     // Don't save progress messages
@@ -79,12 +100,26 @@ const SidePanel = () => {
     }
   }, []);
 
+  // Handle task completion when the test execution is finished
+  const handleTestCompletion = useCallback((testCaseId: string) => {
+    console.log('Test execution completed explicitly for ID:', testCaseId);
+    // Force the UI update with a slight delay to ensure state is updated
+    setTimeout(() => {
+      setTestExecutionCompleted(true);
+      setExecutedTestCaseId(testCaseId);
+    }, 100);
+  }, []);
+
   const handleTaskState = useCallback(
     (event: AgentEvent) => {
       const { actor, state, timestamp, data } = event;
       const content = data?.details;
       let skip = true;
       let displayProgress = false;
+
+      if (DEBUG_MODE) {
+        console.log(`Event: ${actor} -> ${state}`, executedTestCaseIdRef.current);
+      }
 
       switch (actor) {
         case Actors.SYSTEM:
@@ -97,6 +132,27 @@ const SidePanel = () => {
               setIsFollowUpMode(true);
               setInputEnabled(true);
               setShowStopButton(false);
+
+              // If this was a test case execution, mark it as completed
+              if (DEBUG_MODE) {
+                console.log('Task OK completed, executedTestCaseIdRef.current:', executedTestCaseIdRef.current);
+              }
+
+              if (executedTestCaseIdRef.current) {
+                if (DEBUG_MODE) {
+                  console.log('Task was a test execution, showing pass/fail options');
+                }
+
+                // Use the explicit handler to ensure UI updates
+                handleTestCompletion(executedTestCaseIdRef.current);
+
+                // Add a message to indicate completion
+                appendMessage({
+                  actor: Actors.SYSTEM,
+                  content: 'Test execution completed. Please rate the result as Passed or Failed.',
+                  timestamp: Date.now(),
+                });
+              }
               break;
             case ExecutionState.TASK_FAIL:
               setIsFollowUpMode(true);
@@ -208,7 +264,7 @@ const SidePanel = () => {
         });
       }
     },
-    [appendMessage],
+    [appendMessage, handleTestCompletion], // Add the new handler to dependencies
   );
 
   // Stop heartbeat and close connection
@@ -529,7 +585,7 @@ const SidePanel = () => {
     // No longer adding steps to the input field
   };
 
-  // Update handleExecuteTestCase function
+  // Update handleExecuteTestCase function to be more explicit
   const handleExecuteTestCase = async (testCase: TestCase) => {
     if (!testCase || !testCase.steps || testCase.steps.length === 0) {
       appendMessage({
@@ -541,6 +597,17 @@ const SidePanel = () => {
     }
 
     try {
+      // Reset the test execution state
+      setTestExecutionCompleted(false);
+
+      // Store test case ID in both state and ref
+      if (DEBUG_MODE) {
+        console.log('Starting test execution for test case:', testCase.id);
+      }
+
+      setExecutedTestCaseId(testCase.id);
+      executedTestCaseIdRef.current = testCase.id;
+
       const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
       const tabId = tabs[0]?.id;
       if (!tabId) {
@@ -583,7 +650,9 @@ const SidePanel = () => {
         tabId,
       });
 
-      console.log('test_case_execution sent', testCase.name, tabId, sessionIdRef.current);
+      if (DEBUG_MODE) {
+        console.log('test_case_execution sent', testCase.name, tabId, sessionIdRef.current);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       console.error('Test case execution error', errorMessage);
@@ -595,12 +664,111 @@ const SidePanel = () => {
       setInputEnabled(true);
       setShowStopButton(false);
       stopConnection();
+      setExecutedTestCaseId(null);
+      executedTestCaseIdRef.current = null;
     }
   };
 
   // Add this function after handleTestCaseSelect
   const handleClearTestCase = () => {
     setCurrentTestCase(null);
+  };
+
+  // Additional cleanup when resetting test execution
+  const resetTestExecution = useCallback(() => {
+    if (DEBUG_MODE) {
+      console.log('Resetting test execution state');
+    }
+
+    setTestExecutionCompleted(false);
+    setExecutedTestCaseId(null);
+    executedTestCaseIdRef.current = null;
+  }, []);
+
+  // Update handleTestResult to use consistent status naming
+  const handleTestResult = async (status: 'passed' | 'failed') => {
+    try {
+      const testCaseId = executedTestCaseId || executedTestCaseIdRef.current;
+
+      if (!testCaseId) {
+        throw new Error('No test case ID found');
+      }
+
+      console.log('Submitting test result:', status, 'for test case:', testCaseId);
+
+      try {
+        // Use the testExecutionService
+        await testExecutionService.submitResult(testCaseId, status);
+
+        // Show success message
+        appendMessage({
+          actor: Actors.SYSTEM,
+          content: `Test execution saved successfully as: ${status}`,
+          timestamp: Date.now(),
+        });
+      } catch (apiError) {
+        // Handle API errors
+        console.error('API error:', apiError);
+        throw apiError;
+      }
+    } catch (error) {
+      console.error('Failed to save test execution:', error);
+
+      // Show error message
+      appendMessage({
+        actor: Actors.SYSTEM,
+        content: `Failed to save test execution: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: Date.now(),
+      });
+    } finally {
+      // Reset the state after handling
+      resetTestExecution();
+    }
+  };
+
+  // Update the cleanup effect
+  useEffect(() => {
+    // Reset test execution tracking when changing views
+    if (showHistory || showProjects || showTestCases || currentTestCase) {
+      resetTestExecution();
+    }
+  }, [showHistory, showProjects, showTestCases, currentTestCase, resetTestExecution]);
+
+  // Move the pass/fail UI to a separate component for clarity
+  const TestResultButtons = () => {
+    // Check both state and ref to be safe
+    const isTestCompleted = testExecutionCompleted;
+    const testId = executedTestCaseId || executedTestCaseIdRef.current;
+
+    if (!isTestCompleted || !testId) {
+      if (DEBUG_MODE) {
+        console.log('Not showing test result buttons:', { isTestCompleted, testId });
+      }
+      return null;
+    }
+
+    if (DEBUG_MODE) {
+      console.log('Rendering test result buttons', { isTestCompleted, testId });
+    }
+
+    return (
+      <div
+        className={`mb-2 p-3 rounded-lg ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-white text-gray-800'} shadow-lg`}>
+        <div className="text-center font-medium mb-2">How did this test case perform?</div>
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={() => handleTestResult('passed')}
+            className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
+            <FaCheck className="mr-2" /> Passed
+          </button>
+          <button
+            onClick={() => handleTestResult('failed')}
+            className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+            <FaTimes className="mr-2" /> Failed
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -716,6 +884,7 @@ const SidePanel = () => {
                     isDarkMode={isDarkMode}
                   />
                 )}
+                <TestResultButtons />
                 <ChatInput
                   onSendMessage={handleSendMessage}
                   onStopTask={handleStopTask}
