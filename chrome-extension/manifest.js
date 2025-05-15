@@ -39,8 +39,8 @@ const manifest = withSidePanel({
   name: '__MSG_extensionName__',
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
-  host_permissions: ['<all_urls>'],
-  permissions: ['storage', 'scripting', 'tabs', 'activeTab', 'debugger'],
+  host_permissions: ['<all_urls>', 'https://www.googleapis.com/*'],
+  permissions: ['storage', 'scripting', 'tabs', 'activeTab', 'debugger', 'identity'],
   options_page: 'options/index.html',
   background: {
     service_worker: 'background.iife.js',
@@ -64,6 +64,9 @@ const manifest = withSidePanel({
       matches: ['*://*/*'],
     },
   ],
+  oauth2: {
+    client_id: import.meta.env.VITE_CLIENT_ID,
+    scopes: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
+  },
 });
-
 export default manifest;

@@ -219,3 +219,222 @@ code {
   flex: 1;
   overflow: hidden;
 }
+
+/* Google Login Component Styles */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  width: 100%;
+  height: 100%;
+}
+
+.login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #4285F4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.login-button:hover {
+  background-color: #357AE8;
+}
+
+.login-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.google-icon {
+  font-size: 1.25rem;
+}
+
+.user-container {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 100%;
+  border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #0f172a;
+}
+
+.user-email {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.logout-button {
+  background-color: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-end;
+}
+
+.logout-button:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .user-name {
+    color: #e2e8f0;
+  }
+  
+  .user-email {
+    color: #94a3b8;
+  }
+  
+  .user-container {
+    border-bottom: 1px solid rgba(14, 165, 233, 0.3);
+  }
+}
+
+/* Login Page Styles */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 2rem;
+  background-color: #f8fafc;
+}
+
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.lock-icon {
+  font-size: 3rem;
+  color: #0ea5e9;
+  margin-bottom: 1rem;
+}
+
+.login-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #0f172a;
+}
+
+.login-header p {
+  font-size: 1rem;
+  color: #64748b;
+  max-width: 24rem;
+}
+
+.login-error {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  color: #ef4444;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 24rem;
+  text-align: center;
+}
+
+/* Dark mode support for login page */
+@media (prefers-color-scheme: dark) {
+  .login-page {
+    background-color: #1e293b;
+  }
+  
+  .login-header h1 {
+    color: #e2e8f0;
+  }
+  
+  .login-header p {
+    color: #94a3b8;
+  }
+  
+  .login-error {
+    background-color: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+}
+
+/* Small user profile image in header */
+.user-info-small {
+  display: flex;
+  align-items: center;
+}
+
+.profile-image-small {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.profile-image-small:hover {
+  transform: scale(1.1);
+  border-color: rgba(14, 165, 233, 0.6);
+}
+
+/* Side panel container */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+/* Dark mode for side panel */
+@media (prefers-color-scheme: dark) {
+  .side-panel {
+    background-color: #1e293b;
+  }
+}
