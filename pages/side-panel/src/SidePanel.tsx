@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { FiSettings } from 'react-icons/fi';
+import { FiSettings, FiLogOut } from 'react-icons/fi';
 import { PiPlusBold } from 'react-icons/pi';
 import { GrHistory } from 'react-icons/gr';
 import { VscProject } from 'react-icons/vsc';
@@ -12,11 +12,13 @@ import ChatHistoryList from './components/ChatHistoryList';
 import TemplateList from './components/TemplateList';
 import ProjectList from './components/ProjectList';
 import TestCaseList from './components/TestCaseList';
+import LoginPage from './components/LoginPage';
 import { EventType, type AgentEvent, ExecutionState } from './types/event';
 import { defaultTemplates } from './templates';
 import { TestCase } from './types/project';
 import TestCaseDetails from './components/TestCaseDetails';
 import { testExecutionService } from './services/api';
+import { authService, UserInfo } from './services/auth';
 import './SidePanel.css';
 
 const DEBUG_MODE = true; // Set to true to enable debug logging
@@ -37,6 +39,9 @@ const SidePanel = () => {
   const [currentTestCase, setCurrentTestCase] = useState<TestCase | null>(null);
   const [testExecutionCompleted, setTestExecutionCompleted] = useState(false);
   const [executedTestCaseId, setExecutedTestCaseId] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
   // Create refs for tracking test execution
   const sessionIdRef = useRef<string | null>(null);
@@ -74,6 +79,26 @@ const SidePanel = () => {
       console.log('testExecutionCompleted changed:', testExecutionCompleted);
     }
   }, [testExecutionCompleted]);
+
+  // Check for authentication status on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const isAuth = await authService.isAuthenticated();
+        if (isAuth) {
+          setIsAuthenticated(true);
+          const token = await authService.getToken();
+          setAuthToken(token);
+          const user = await authService.getCurrentUser();
+          setUserInfo(user);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const appendMessage = useCallback((newMessage: Message, sessionId?: string | null) => {
     // Don't save progress messages
@@ -770,6 +795,30 @@ const SidePanel = () => {
     );
   };
 
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    console.log('handleLoginSuccess');
+
+    handleNewChat();
+  };
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await authService.logout();
+      setIsAuthenticated(false);
+      setUserInfo(null);
+      setAuthToken(null);
+      // Reset UI state
+      handleNewChat();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  }, []);
+
+  if (!isAuthenticated) {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div>
       <div
@@ -826,6 +875,17 @@ const SidePanel = () => {
                   aria-label="Settings">
                   <FiSettings size={24} />
                 </a>
+                {isAuthenticated && (
+                  <button
+                    type="button"
+                    className={`${
+                      isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
+                    } cursor-pointer`}
+                    onClick={handleLogout}
+                    aria-label="Logout">
+                    <FiLogOut size={24} />
+                  </button>
+                )}
               </>
             )}
           </div>

@@ -2,21 +2,27 @@ import { Project, ProjectsResponse, TestCase, TestCasesResponse } from '../types
 
 export class ApiClient {
   private baseUrl: string;
-  private headers: Record<string, string>;
 
-  constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  constructor(baseUrl: string | undefined) {
+    this.baseUrl = baseUrl || 'http://localhost:8000';
+  }
 
-    const token = import.meta.env.VITE_BEARER_TOKEN || '';
-
-    this.headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    };
+  private async getHeaders(): Promise<Record<string, string>> {
+    return new Promise(resolve => {
+      chrome.storage.local.get('appToken', result => {
+        const token = result.appToken || '';
+        resolve({
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        });
+      });
+    });
   }
 
   async get<T>(path: string, queryParams?: Record<string, string | number>): Promise<T> {
     try {
+      const headers = await this.getHeaders();
+
       let url = `${this.baseUrl}${path}`;
       if (queryParams) {
         const params = new URLSearchParams();
@@ -28,7 +34,7 @@ export class ApiClient {
 
       const response = await fetch(url, {
         method: 'GET',
-        headers: this.headers,
+        headers,
       });
 
       if (!response.ok) {
@@ -47,9 +53,10 @@ export class ApiClient {
 
   async post<T>(path: string, data: unknown): Promise<T> {
     try {
+      const headers = await this.getHeaders();
       const response = await fetch(`${this.baseUrl}${path}`, {
         method: 'POST',
-        headers: this.headers,
+        headers,
         body: JSON.stringify(data),
       });
 
@@ -68,7 +75,7 @@ export class ApiClient {
   }
 }
 
-const apiClient = new ApiClient();
+const apiClient = new ApiClient(import.meta.env.VITE_API_URL);
 
 export const projectService = {
   getProjects: async (page = 1, size = 10): Promise<ProjectsResponse> => {
