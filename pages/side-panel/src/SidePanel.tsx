@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { RxDiscordLogo } from 'react-icons/rx';
 import { FiSettings } from 'react-icons/fi';
 import { PiPlusBold } from 'react-icons/pi';
 import { GrHistory } from 'react-icons/gr';
@@ -753,17 +752,17 @@ const SidePanel = () => {
 
     return (
       <div
-        className={`mb-2 p-3 rounded-lg ${isDarkMode ? 'bg-slate-800 text-white' : 'bg-white text-gray-800'} shadow-lg`}>
+        className={`mb-2 p-3 rounded-lg ${isDarkMode ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,98%)]' : 'bg-white text-[hsl(0,0%,3.9%)]'} shadow-lg`}>
         <div className="text-center font-medium mb-2">How did this test case perform?</div>
         <div className="flex justify-center gap-4">
           <button
             onClick={() => handleTestResult('passed')}
-            className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
+            className={`flex items-center px-4 py-2 ${isDarkMode ? 'bg-[hsl(0,0%,98%)] text-[hsl(0,0%,9%)]' : 'bg-[hsl(0,0%,9%)] text-[hsl(0,0%,98%)]'} rounded-md hover:opacity-90 transition-colors`}>
             <FaCheck className="mr-2" /> Passed
           </button>
           <button
             onClick={() => handleTestResult('failed')}
-            className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">
+            className={`flex items-center px-4 py-2 ${isDarkMode ? 'bg-[hsl(0,62.8%,30.6%)] text-[hsl(0,0%,98%)]' : 'bg-[hsl(0,84.2%,60.2%)] text-white'} rounded-md hover:opacity-90 transition-colors`}>
             <FaTimes className="mr-2" /> Failed
           </button>
         </div>
@@ -774,7 +773,7 @@ const SidePanel = () => {
   return (
     <div>
       <div
-        className={`flex flex-col h-[100vh] ${isDarkMode ? 'bg-slate-900' : "bg-[url('/bg.jpg')] bg-cover bg-no-repeat"} overflow-hidden border ${isDarkMode ? 'border-sky-800' : 'border-[rgb(186,230,253)]'} rounded-2xl`}>
+        className={`flex flex-col h-[100vh] ${isDarkMode ? 'bg-[hsl(0,0%,3.9%)] text-[hsl(0,0%,98%)]' : 'bg-white text-[hsl(0,0%,3.9%)]'} overflow-hidden border ${isDarkMode ? 'border-[hsl(0,0%,14.9%)]' : 'border-[hsl(0,0%,89.8%)]'} rounded-lg`}>
         <header className="header relative">
           <div className="header-logo">
             {showHistory || showProjects || showTestCases ? (
@@ -785,12 +784,14 @@ const SidePanel = () => {
                   if (showProjects) handleBackFromProjects();
                   if (showTestCases) handleBackFromTestCases();
                 }}
-                className={`${isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'} cursor-pointer text-lg`}
+                className={`${isDarkMode ? 'text-[hsl(0,0%,98%)] hover:text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,9%)] hover:text-[hsl(0,0%,45.1%)]'} cursor-pointer text-lg`}
                 aria-label="Back">
                 ← Back
               </button>
             ) : (
-              <img src="/icon-128.png" alt="Extension Logo" className="h-8 w-8" />
+              <a href="https://scriptless.attensys.ai" target="_blank" rel="noopener noreferrer">
+                <img src="/icon-128.png" alt="Extension Logo" className="h-8 w-8 cursor-pointer" />
+              </a>
             )}
           </div>
           <div className="header-icons">
@@ -798,48 +799,30 @@ const SidePanel = () => {
               <>
                 <button
                   type="button"
-                  className={`${
-                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
-                  } cursor-pointer`}
+                  className={`${isDarkMode ? 'text-[hsl(0,0%,98%)] hover:text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,9%)] hover:text-[hsl(0,0%,45.1%)]'} cursor-pointer`}
                   onClick={handleNewChat}
                   aria-label="New chat">
                   <PiPlusBold size={24} />
                 </button>
                 <button
                   type="button"
-                  className={`${
-                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
-                  } cursor-pointer`}
+                  className={`${isDarkMode ? 'text-[hsl(0,0%,98%)] hover:text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,9%)] hover:text-[hsl(0,0%,45.1%)]'} cursor-pointer`}
                   onClick={handleLoadHistory}
                   aria-label="Chat history">
                   <GrHistory size={24} />
                 </button>
                 <button
                   type="button"
-                  className={`${
-                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
-                  } cursor-pointer`}
+                  className={`${isDarkMode ? 'text-[hsl(0,0%,98%)] hover:text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,9%)] hover:text-[hsl(0,0%,45.1%)]'} cursor-pointer`}
                   onClick={handleShowProjects}
                   aria-label="Projects">
                   <VscProject size={24} />
                 </button>
                 <a
-                  href="https://discord.gg/3MFRbcgAtx"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${
-                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
-                  } cursor-pointer`}
-                  aria-label="Discord">
-                  <RxDiscordLogo size={24} />
-                </a>
-                <a
                   href="/options/index.html"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`${
-                    isDarkMode ? 'text-sky-400 hover:text-sky-300' : 'text-sky-400 hover:text-sky-500'
-                  } cursor-pointer`}
+                  className={`${isDarkMode ? 'text-[hsl(0,0%,98%)] hover:text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,9%)] hover:text-[hsl(0,0%,45.1%)]'} cursor-pointer`}
                   aria-label="Settings">
                   <FiSettings size={24} />
                 </a>

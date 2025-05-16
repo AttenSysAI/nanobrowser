@@ -42,7 +42,7 @@ function MessageBlock({ message, isSameActor, isDarkMode = false }: MessageBlock
     <div
       className={`flex max-w-full gap-3 px-4 ${
         !isSameActor
-          ? `mt-4 border-t ${isDarkMode ? 'border-sky-800/50' : 'border-sky-200/50'} pt-4 first:mt-0 first:border-t-0 first:pt-0`
+          ? `mt-4 border-t ${isDarkMode ? 'border-[hsl(0,0%,14.9%)]/50' : 'border-[hsl(0,0%,89.8%)]/50'} pt-4 first:mt-0 first:border-t-0 first:pt-0`
           : ''
       }`}>
       {!isSameActor && (
@@ -56,23 +56,26 @@ function MessageBlock({ message, isSameActor, isDarkMode = false }: MessageBlock
 
       <div className="min-w-0 flex-1">
         {!isSameActor && (
-          <div className={`mb-1 text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+          <div
+            className={`mb-1 text-sm font-semibold ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,3.9%)]'}`}>
             {actor.name}
           </div>
         )}
 
         <div className="space-y-0.5">
-          <div className={`whitespace-pre-wrap break-words text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          <div
+            className={`whitespace-pre-wrap break-words text-sm ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,9%)]'}`}>
             {isProgress ? (
-              <div className={`h-1 overflow-hidden rounded ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-                <div className="animate-progress h-full bg-blue-500" />
+              <div
+                className={`h-1 overflow-hidden rounded ${isDarkMode ? 'bg-[hsl(0,0%,14.9%)]' : 'bg-[hsl(0,0%,96.1%)]'}`}>
+                <div className="animate-progress h-full bg-[hsl(224.3,76.3%,48%)]" />
               </div>
             ) : (
               message.content
             )}
           </div>
           {!isProgress && (
-            <div className={`text-right text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-300'}`}>
+            <div className={`text-right text-xs ${isDarkMode ? 'text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,45.1%)]'}`}>
               {formatTimestamp(message.timestamp)}
             </div>
           )}

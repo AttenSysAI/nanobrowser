@@ -56,15 +56,10 @@ export default function ProjectList({ onProjectSelect, onBackToChat, isDarkMode 
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-        <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Projects</h2>
-        <button
-          onClick={onBackToChat}
-          className={`px-2 py-1 rounded text-sm ${
-            isDarkMode ? 'bg-slate-700 text-sky-400 hover:bg-slate-600' : 'bg-gray-100 text-sky-600 hover:bg-gray-200'
-          }`}>
-          Back to Chat
-        </button>
+      <div className="px-4 py-3 border-b border-[hsl(0,0%,89.8%)] flex justify-between items-center">
+        <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,3.9%)]'}`}>
+          Projects
+        </h2>
       </div>
 
       {isLoading && (
@@ -84,23 +79,29 @@ export default function ProjectList({ onProjectSelect, onBackToChat, isDarkMode 
           <div className="overflow-y-auto flex-grow">
             {projects.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className={`text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>No projects found</p>
+                <p className={`text-center ${isDarkMode ? 'text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,45.1%)]'}`}>
+                  No projects found
+                </p>
               </div>
             ) : (
-              <ul className="divide-y divide-gray-200">
+              <ul className="divide-y divide-[hsl(0,0%,89.8%)]">
                 {projects.map(project => (
                   <li
                     key={project.id}
                     className={`p-4 cursor-pointer transition-colors ${
-                      isDarkMode ? 'hover:bg-slate-800 border-slate-700' : 'hover:bg-gray-50 border-gray-200'
+                      isDarkMode
+                        ? 'hover:bg-[hsl(0,0%,14.9%)] border-[hsl(0,0%,14.9%)]'
+                        : 'hover:bg-[hsl(0,0%,96.1%)] border-[hsl(0,0%,89.8%)]'
                     }`}
                     onClick={() => onProjectSelect(project.id)}>
                     <div className="flex flex-col gap-1">
-                      <h3 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{project.name}</h3>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <h3 className={`font-medium ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,3.9%)]'}`}>
+                        {project.name}
+                      </h3>
+                      <p className={`text-sm ${isDarkMode ? 'text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,45.1%)]'}`}>
                         {project.description}
                       </p>
-                      <div className="mt-1 text-xs text-gray-500">
+                      <div className="mt-1 text-xs text-[hsl(0,0%,45.1%)]">
                         Updated: {new Date(project.updated_at).toLocaleDateString()}
                       </div>
                     </div>
@@ -113,22 +114,22 @@ export default function ProjectList({ onProjectSelect, onBackToChat, isDarkMode 
           {/* Pagination controls */}
           {projects.length > 0 && (
             <div
-              className={`flex justify-between items-center p-4 border-t ${isDarkMode ? 'border-slate-700' : 'border-gray-200'}`}>
+              className={`flex justify-between items-center p-4 border-t ${isDarkMode ? 'border-[hsl(0,0%,14.9%)]' : 'border-[hsl(0,0%,89.8%)]'}`}>
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage <= 1}
                 className={`px-3 py-1 rounded text-sm ${
                   isDarkMode
                     ? currentPage <= 1
-                      ? 'bg-slate-800 text-gray-500 cursor-not-allowed'
-                      : 'bg-slate-700 text-sky-400 hover:bg-slate-600'
+                      ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,63.9%)] cursor-not-allowed'
+                      : 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,98%)] hover:bg-[hsl(0,0%,20%)]'
                     : currentPage <= 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-100 text-sky-600 hover:bg-gray-200'
+                      ? 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,45.1%)] cursor-not-allowed'
+                      : 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,9%)] hover:bg-[hsl(0,0%,90%)]'
                 }`}>
                 ← Previous
               </button>
-              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <span className={`text-sm ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,9%)]'}`}>
                 Page {currentPage} of {totalPages}
               </span>
               <button
@@ -137,11 +138,11 @@ export default function ProjectList({ onProjectSelect, onBackToChat, isDarkMode 
                 className={`px-3 py-1 rounded text-sm ${
                   isDarkMode
                     ? currentPage >= totalPages
-                      ? 'bg-slate-800 text-gray-500 cursor-not-allowed'
-                      : 'bg-slate-700 text-sky-400 hover:bg-slate-600'
+                      ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,63.9%)] cursor-not-allowed'
+                      : 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,98%)] hover:bg-[hsl(0,0%,20%)]'
                     : currentPage >= totalPages
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-100 text-sky-600 hover:bg-gray-200'
+                      ? 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,45.1%)] cursor-not-allowed'
+                      : 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,9%)] hover:bg-[hsl(0,0%,90%)]'
                 }`}>
                 Next →
               </button>

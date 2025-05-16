@@ -35,12 +35,14 @@ const Options = () => {
 
   return (
     <div
-      className={`flex min-h-screen min-w-[768px] ${isDarkMode ? 'bg-slate-900' : "bg-[url('/bg.jpg')] bg-cover bg-center"} ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
+      className={`flex min-h-screen min-w-[768px] ${isDarkMode ? 'bg-[hsl(0,0%,3.9%)]' : 'bg-white'} ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,3.9%)]'}`}>
       {/* Vertical Navigation Bar */}
       <nav
-        className={`w-48 border-r ${isDarkMode ? 'border-slate-700 bg-slate-800/80' : 'border-white/20 bg-[#0EA5E9]/10'} backdrop-blur-sm`}>
+        className={`w-48 border-r ${isDarkMode ? 'border-[hsl(0,0%,14.9%)] bg-[hsl(0,0%,14.9%)]' : 'border-[hsl(0,0%,89.8%)] bg-[hsl(0,0%,96.1%)]'}`}>
         <div className="p-4">
-          <h1 className={`mb-6 text-xl font-bold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Settings</h1>
+          <h1 className={`mb-6 text-xl font-bold ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,3.9%)]'}`}>
+            Settings
+          </h1>
           <ul className="space-y-2">
             {[
               { id: 'general', icon: '⚙️', label: 'General' },
@@ -52,8 +54,8 @@ const Options = () => {
                   className={`flex w-full items-center space-x-2 rounded-lg px-4 py-2 text-left 
                     ${
                       activeTab !== item.id
-                        ? `${isDarkMode ? 'bg-slate-700/70 text-gray-300 hover:text-white' : 'bg-[#0EA5E9]/15 font-medium text-gray-700 hover:text-white'} backdrop-blur-sm`
-                        : `${isDarkMode ? 'bg-sky-800/50' : ''} text-white backdrop-blur-sm`
+                        ? `${isDarkMode ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,63.9%)] hover:text-[hsl(0,0%,98%)]' : 'bg-[hsl(0,0%,96.1%)] font-medium text-[hsl(0,0%,45.1%)] hover:text-[hsl(0,0%,9%)]'}`
+                        : `${isDarkMode ? 'bg-[hsl(0,0%,20%)]' : 'bg-[hsl(0,0%,90%)]'} ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,9%)]'}`
                     }`}>
                   <span>{item.icon}</span>
                   <span>{item.label}</span>
@@ -65,7 +67,7 @@ const Options = () => {
       </nav>
 
       {/* Main Content Area */}
-      <main className={`flex-1 ${isDarkMode ? 'bg-slate-800/50' : 'bg-white/10'} p-8 backdrop-blur-sm`}>
+      <main className={`flex-1 ${isDarkMode ? 'bg-[hsl(0,0%,3.9%)]' : 'bg-white'} p-8`}>
         <div className="mx-auto min-w-[512px] max-w-screen-lg">{renderTabContent()}</div>
       </main>
     </div>

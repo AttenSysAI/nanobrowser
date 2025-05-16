@@ -123,10 +123,10 @@ export const GeneralSettings = ({ isDarkMode = false }: GeneralSettingsProps) =>
           <div className="flex items-center justify-between">
             <div>
               <h3 className={`text-lg font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Enable Vision for Planner
+                Enable Vision for Architect
               </h3>
               <p className={`text-sm font-normal ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                Use vision in planner (uses more tokens)
+                Use vision in architect (uses more tokens)
               </p>
             </div>
             <div className="relative inline-flex cursor-pointer items-center">
@@ -140,7 +140,7 @@ export const GeneralSettings = ({ isDarkMode = false }: GeneralSettingsProps) =>
               <label
                 htmlFor="useVisionForPlanner"
                 className={`peer h-6 w-11 rounded-full ${isDarkMode ? 'bg-slate-600' : 'bg-gray-200'} after:absolute after:left-[2px] after:top-[2px] after:size-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300`}>
-                <span className="sr-only">Enable Vision for Planner</span>
+                <span className="sr-only">Enable Vision for Architect</span>
               </label>
             </div>
           </div>

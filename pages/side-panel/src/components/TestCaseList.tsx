@@ -70,13 +70,6 @@ export default function TestCaseList({ projectId, onTestCaseSelect, onBackToProj
           <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Test Cases</h2>
           <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{projectName}</p>
         </div>
-        <button
-          onClick={onBackToProjects}
-          className={`px-2 py-1 rounded text-sm ${
-            isDarkMode ? 'bg-slate-700 text-sky-400 hover:bg-slate-600' : 'bg-gray-100 text-sky-600 hover:bg-gray-200'
-          }`}>
-          Back to Projects
-        </button>
       </div>
 
       {isLoading && (
@@ -133,22 +126,22 @@ export default function TestCaseList({ projectId, onTestCaseSelect, onBackToProj
           {/* Pagination controls */}
           {testCases.length > 0 && (
             <div
-              className={`flex justify-between items-center p-4 border-t ${isDarkMode ? 'border-slate-700' : 'border-gray-200'}`}>
+              className={`flex justify-between items-center p-4 border-t ${isDarkMode ? 'border-[hsl(0,0%,14.9%)]' : 'border-[hsl(0,0%,89.8%)]'}`}>
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage <= 1}
                 className={`px-3 py-1 rounded text-sm ${
                   isDarkMode
                     ? currentPage <= 1
-                      ? 'bg-slate-800 text-gray-500 cursor-not-allowed'
-                      : 'bg-slate-700 text-sky-400 hover:bg-slate-600'
+                      ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,63.9%)] cursor-not-allowed'
+                      : 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,98%)] hover:bg-[hsl(0,0%,20%)]'
                     : currentPage <= 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-100 text-sky-600 hover:bg-gray-200'
+                      ? 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,45.1%)] cursor-not-allowed'
+                      : 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,9%)] hover:bg-[hsl(0,0%,90%)]'
                 }`}>
                 ← Previous
               </button>
-              <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <span className={`text-sm ${isDarkMode ? 'text-[hsl(0,0%,98%)]' : 'text-[hsl(0,0%,9%)]'}`}>
                 Page {currentPage} of {totalPages}
               </span>
               <button
@@ -157,11 +150,11 @@ export default function TestCaseList({ projectId, onTestCaseSelect, onBackToProj
                 className={`px-3 py-1 rounded text-sm ${
                   isDarkMode
                     ? currentPage >= totalPages
-                      ? 'bg-slate-800 text-gray-500 cursor-not-allowed'
-                      : 'bg-slate-700 text-sky-400 hover:bg-slate-600'
+                      ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,63.9%)] cursor-not-allowed'
+                      : 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,98%)] hover:bg-[hsl(0,0%,20%)]'
                     : currentPage >= totalPages
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-100 text-sky-600 hover:bg-gray-200'
+                      ? 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,45.1%)] cursor-not-allowed'
+                      : 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,9%)] hover:bg-[hsl(0,0%,90%)]'
                 }`}>
                 Next →
               </button>

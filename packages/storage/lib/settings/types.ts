@@ -1,7 +1,7 @@
 export enum AgentNameEnum {
-  Planner = 'planner',
-  Navigator = 'navigator',
-  Validator = 'validator',
+  Planner = 'architect',
+  Navigator = 'pathfinder',
+  Validator = 'inspector',
 }
 
 // Enum for supported LLM providers

@@ -1,22 +1,22 @@
 /* Add this at the top of the file */
 body {
-  border-color: rgb(159, 6, 11) !important; /* sky-200 color */
+  border-color: hsl(0, 0%, 89.8%) !important;
 }
 
 /* Remove unused classes: .App, .App-logo, .App-header */
 
 code {
-  background: rgba(186, 230, 253, 0.4);
-  border-radius: 0.25rem;
+  background: hsla(0, 0%, 96.1%, 0.4);
+  border-radius: 0.5rem;
   padding: 0.2rem 0.5rem;
-  color: #0369a1;
+  color: hsl(0, 0%, 9%);
 }
 
 /* Dark mode support for code */
 @media (prefers-color-scheme: dark) {
   code {
-    background: rgba(30, 58, 138, 0.4);
-    color: #7dd3fc;
+    background: hsla(0, 0%, 14.9%, 0.4);
+    color: hsl(0, 0%, 98%);
   }
 }
 
@@ -26,30 +26,30 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: hsl(0, 0%, 96.1%);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0ea5e9;
+  background: hsl(224.3, 76.3%, 48%);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0284c7;
+  background: hsl(224.3, 76.3%, 60%);
 }
 
 /* Dark mode scrollbar */
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-track {
-    background: #1e293b;
+    background: hsl(0, 0%, 14.9%);
   }
   
   ::-webkit-scrollbar-thumb {
-    background: #0ea5e9;
+    background: hsl(224.3, 76.3%, 48%);
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: #38bdf8;
+    background: hsl(224.3, 76.3%, 60%);
   }
 }
 
@@ -60,13 +60,13 @@ code {
   align-items: center;
   padding: 0.75rem 1rem;
   background-color: transparent;
-  border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+  border-bottom: 1px solid hsla(0, 0%, 89.8%, 0.2);
 }
 
 /* Dark mode header border */
 @media (prefers-color-scheme: dark) {
   .header {
-    border-bottom: 1px solid rgba(14, 165, 233, 0.3);
+    border-bottom: 1px solid hsla(0, 0%, 14.9%, 0.3);
   }
 }
 
@@ -88,44 +88,75 @@ code {
   justify-content: center;
   transition: transform 0.2s ease, opacity 0.2s ease;
   padding: 0.35rem;
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
 }
 
 .header-icons button:hover, 
 .header-icons a:hover {
   transform: scale(1.15);
   opacity: 1;
-  background-color: rgba(14, 165, 233, 0.1);
+  background-color: hsla(0, 0%, 96.1%, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .header-icons button:hover, 
+  .header-icons a:hover {
+    background-color: hsla(0, 0%, 14.9%, 0.3);
+  }
 }
 
 .header-icon {
-  color: #19C2FF;
+  color: hsl(0, 0%, 9%);
   cursor: pointer;
   transition: color 0.2s ease;
   opacity: 0.8;
 }
 
 .header-icon:hover {
-  color: #0073DC;
+  color: hsl(0, 0%, 45.1%);
   opacity: 1;
 }
 
+@media (prefers-color-scheme: dark) {
+  .header-icon {
+    color: hsl(0, 0%, 98%);
+  }
+  
+  .header-icon:hover {
+    color: hsl(0, 0%, 63.9%);
+  }
+}
+
 .send-button {
-  color: #19C2FF;
+  color: hsl(0, 0%, 9%);
   cursor: pointer;
   transition: color 0.2s ease;
   opacity: 0.8;
 }
 
 .send-button:hover {
-  color: #0073DC;
+  color: hsl(0, 0%, 45.1%);
   opacity: 1;
 }
 
 .send-button:disabled {
-  color: #CBD5E1;
+  color: hsl(0, 0%, 89.8%);
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .send-button {
+    color: hsl(0, 0%, 98%);
+  }
+  
+  .send-button:hover {
+    color: hsl(0, 0%, 63.9%);
+  }
+  
+  .send-button:disabled {
+    color: hsl(0, 0%, 14.9%);
+  }
 }
 
 /* Add these styles to your existing CSS */
@@ -139,45 +170,45 @@ code {
 }
 
 .scrollbar-gutter-stable::-webkit-scrollbar-track {
-  background: #f1f5f9;  /* sky-50 */
+  background: hsl(0, 0%, 96.1%);
 }
 
 .scrollbar-gutter-stable::-webkit-scrollbar-thumb {
-  background: #7dd3fc;  /* sky-300 - very light blue */
+  background: hsl(224.3, 76.3%, 48%);
   border-radius: 4px;
 }
 
 .scrollbar-gutter-stable::-webkit-scrollbar-thumb:hover {
-  background: #38bdf8;  /* sky-400 - slightly darker on hover */
+  background: hsl(224.3, 76.3%, 60%);
 }
 
 /* Dark mode scrollbar for scrollbar-gutter-stable */
 @media (prefers-color-scheme: dark) {
   .scrollbar-gutter-stable::-webkit-scrollbar-track {
-    background: #1e293b;  /* slate-800 */
+    background: hsl(0, 0%, 14.9%);
   }
   
   .scrollbar-gutter-stable::-webkit-scrollbar-thumb {
-    background: #0ea5e9;  /* sky-500 */
+    background: hsl(224.3, 76.3%, 48%);
   }
   
   .scrollbar-gutter-stable::-webkit-scrollbar-thumb:hover {
-    background: #38bdf8;  /* sky-400 */
+    background: hsl(224.3, 76.3%, 60%);
   }
 }
 
 /* Dark mode text and background colors */
 @media (prefers-color-scheme: dark) {
   .dark-mode-text {
-    color: #e2e8f0 !important; /* slate-200 */
+    color: hsl(0, 0%, 98%) !important;
   }
   
   .dark-mode-bg {
-    background-color: #1e293b !important; /* slate-800 */
+    background-color: hsl(0, 0%, 3.9%) !important;
   }
   
   .dark-mode-border {
-    border-color: #475569 !important; /* slate-600 */
+    border-color: hsl(0, 0%, 14.9%) !important;
   }
 }
 

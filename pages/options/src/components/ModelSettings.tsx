@@ -267,11 +267,11 @@ export const ModelSettings = ({ isDarkMode = false }: ModelSettingsProps) => {
   const getAgentDescription = (agentName: AgentNameEnum) => {
     switch (agentName) {
       case AgentNameEnum.Navigator:
-        return 'Handles browsing and interacting with web pages';
+        return 'Pathfinder: Handles browsing and interacting with web pages';
       case AgentNameEnum.Planner:
-        return 'Creates and updates the plan for completing tasks';
+        return 'Architect: Creates and updates the plan for completing tasks';
       case AgentNameEnum.Validator:
-        return 'Validates the results of actions and task completion';
+        return 'Inspector: Validates the results of actions and task completion';
       default:
         return '';
     }

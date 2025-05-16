@@ -73,7 +73,7 @@ export default function ChatInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`overflow-hidden rounded-lg border transition-colors focus-within:border-sky-400 hover:border-sky-400 ${isDarkMode ? 'border-slate-700' : ''}`}
+      className={`overflow-hidden rounded-lg border transition-colors focus-within:border-[hsl(224.3,76.3%,48%)] hover:border-[hsl(224.3,76.3%,48%)] ${isDarkMode ? 'border-[hsl(0,0%,14.9%)]' : 'border-[hsl(0,0%,89.8%)]'}`}
       aria-label="Chat input form">
       <div className="flex flex-col">
         <textarea
@@ -86,11 +86,11 @@ export default function ChatInput({
           className={`w-full resize-none border-none p-3 focus:outline-none ${
             disabled
               ? isDarkMode
-                ? 'bg-slate-800 text-gray-400'
-                : 'bg-gray-100 text-gray-500'
+                ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,63.9%)]'
+                : 'bg-[hsl(0,0%,96.1%)] text-[hsl(0,0%,45.1%)]'
               : isDarkMode
-                ? 'bg-slate-800 text-gray-200'
-                : 'bg-white'
+                ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,98%)]'
+                : 'bg-white text-[hsl(0,0%,3.9%)]'
           }`}
           placeholder="What can I help with?"
           aria-label="Message input"
@@ -98,7 +98,13 @@ export default function ChatInput({
 
         <div
           className={`flex items-center justify-between px-3 py-1.5 ${
-            disabled ? (isDarkMode ? 'bg-slate-800' : 'bg-gray-100') : isDarkMode ? 'bg-slate-800' : 'bg-white'
+            disabled
+              ? isDarkMode
+                ? 'bg-[hsl(0,0%,14.9%)]'
+                : 'bg-[hsl(0,0%,96.1%)]'
+              : isDarkMode
+                ? 'bg-[hsl(0,0%,14.9%)]'
+                : 'bg-white'
           }`}>
           <div className="flex gap-2 text-gray-500">{/* Icons can go here */}</div>
 
@@ -106,14 +112,14 @@ export default function ChatInput({
             <button
               type="button"
               onClick={onStopTask}
-              className="rounded-md bg-red-500 px-3 py-1 text-white transition-colors hover:bg-red-600">
+              className={`rounded-md ${isDarkMode ? 'bg-[hsl(0,62.8%,30.6%)]' : 'bg-[hsl(0,84.2%,60.2%)]'} px-3 py-1 text-white transition-colors hover:opacity-90`}>
               Stop
             </button>
           ) : (
             <button
               type="submit"
               disabled={disabled}
-              className={`rounded-md bg-[#19C2FF] px-3 py-1 text-white transition-colors hover:bg-[#0073DC] ${disabled ? 'opacity-50' : ''}`}>
+              className={`rounded-md ${isDarkMode ? 'bg-[hsl(0,0%,98%)] text-[hsl(0,0%,9%)]' : 'bg-[hsl(0,0%,9%)] text-[hsl(0,0%,98%)]'} px-3 py-1 transition-colors hover:opacity-90 ${disabled ? 'opacity-50' : ''}`}>
               Send
             </button>
           )}

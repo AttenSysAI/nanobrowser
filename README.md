@@ -22,8 +22,8 @@ Nanobrowser is an open-source AI web automation tool that runs in your browser. 
 ❤️ Loving Nanobrowser? Give us a star 🌟 and help spread the word!
 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/112c4385-7b03-4b81-a352-4f348093351b" width="600" alt="Nanobrowser Demo GIF" />
-<p><em>Nanobrowser's multi-agent system analyzing HuggingFace in real-time, with the Planner intelligently self-correcting when encountering obstacles and dynamically instructing the Navigator to adjust its approach—all running locally in your browser.</em></p>
+<img src="https://github.com/user-attachments/assets/112c4385-7b03-4b81-a352-4f348093351b" width="600" alt="Scriptless Demo GIF" />
+<p><em>Scriptless's multi-agent system analyzing websites in real-time, with the Architect intelligently self-correcting when encountering obstacles and dynamically instructing the Pathfinder to adjust its approach—all running locally in your browser.</em></p>
 </div>
 
 ## 🔥Why Nanobrowser?
@@ -61,10 +61,10 @@ Looking for a powerful AI web agent without the $200/month price tag of OpenAI O
     * Select the unzipped `nanobrowser` folder.
 
 3. **Configure Agent Models**
-    *   Click the Nanobrowser icon in your toolbar to open the sidebar
+    *   Click the Scriptless icon in your toolbar to open the sidebar
     *   Click the `Settings` icon (top right).
     *   Add your LLM API keys.
-    *   Choose which model to use for different agents (Navigator, Planner, Validator)
+    *   Choose which model to use for different agents (Pathfinder, Architect, Inspector)
 
 ## 🛠️ Build from Source
 
@@ -104,18 +104,18 @@ If you prefer to build Nanobrowser yourself, follow these steps:
 Nanobrowser allows you to configure different LLM models for each agent to balance performance and cost. Here are recommended configurations:
 
 ### Better Performance
-- **Planner & Validator**: Claude 3.7 Sonnet
+- **Architect & Inspector**: Claude 3.7 Sonnet
   - Better reasoning and planning capabilities
   - More reliable task validation
-- **Navigator**: Claude 3.5 Haiku
+- **Pathfinder**: Claude 3.5 Haiku
   - Efficient for web navigation tasks
   - Good balance of performance and cost
 
 ### Cost-Effective Configuration
-- **Planner & Validator**: Claude Haiku or GPT-4o
+- **Architect & Inspector**: Claude Haiku or GPT-4o
   - Reasonable performance at lower cost
   - May require more iterations for complex tasks
-- **Navigator**: Gemini 2.0 Flash or GPT-4o-mini
+- **Pathfinder**: Gemini 2.0 Flash or GPT-4o-mini
   - Lightweight and cost-efficient
   - Suitable for basic navigation tasks
 

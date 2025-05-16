@@ -10,18 +10,18 @@ export const ACTOR_PROFILES = {
     iconBackground: '#2196F3',
   },
   planner: {
-    name: 'Planner',
-    icon: 'icons/planner.svg',
+    name: 'Architect',
+    icon: 'icons/architect.svg',
     iconBackground: '#FF9800',
   },
   navigator: {
-    name: 'Navigator',
-    icon: 'icons/navigator.svg',
+    name: 'Pathfinder',
+    icon: 'icons/pathfinder.svg',
     iconBackground: '#40A9FF',
   },
   validator: {
-    name: 'Validator',
-    icon: 'icons/validator.svg',
+    name: 'Inspector',
+    icon: 'icons/inspector.svg',
     iconBackground: '#EC407A',
   },
   manager: {
