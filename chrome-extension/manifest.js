@@ -65,8 +65,9 @@ const manifest = withSidePanel({
     },
   ],
   oauth2: {
-    client_id: import.meta.env.VITE_CLIENT_ID,
+    client_id: '595477922628-qdih86kuv9j9e9mm0unhjspr002nlsku.apps.googleusercontent.com',
     scopes: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
   },
+  key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuDF61rbOZ/998psoFAueiYiGsLIX6Ql4P2GUTuE+ixZ8DfzMUJUsothK84BUKJhrSaXyBm7sGs4aTwS8qTJya9OJ8ooLnVwKNnIThPVHTv21K6EupoLULCFixneM5a8in35uCkA2EFNxAqm8PsTSM/fBfluGPl19lP78KFrVF2dC8OjFQO8id2Ft74bhj95VrZThTsgmJsaP39Zu+5NC0OThjSHbNCVuN+aHX9gWh0l+eQppDKAbxL9+JqwCmZhkM/vN36hTLTpttdiB10ciX2sMCXskTLXfdoNMK7igvu9BCcF9L19AOFOiotZn2u6LSW0lNq9xJDIvkmu0UOEArQIDAQAB',
 });
 export default manifest;
