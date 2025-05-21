@@ -73,6 +73,49 @@ export class ApiClient {
       throw error;
     }
   }
+
+  async put<T>(path: string, data: unknown): Promise<T> {
+    try {
+      const headers = await this.getHeaders();
+      const response = await fetch(`${this.baseUrl}${path}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Authentication failed: Invalid or expired token');
+        }
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      return (await response.json()) as T;
+    } catch (error) {
+      console.error('API PUT request failed:', error);
+      throw error;
+    }
+  }
+
+  async delete(path: string): Promise<void> {
+    try {
+      const headers = await this.getHeaders();
+      const response = await fetch(`${this.baseUrl}${path}`, {
+        method: 'DELETE',
+        headers,
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Authentication failed: Invalid or expired token');
+        }
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('API DELETE request failed:', error);
+      throw error;
+    }
+  }
 }
 
 const apiClient = new ApiClient(import.meta.env.VITE_API_URL);
@@ -98,6 +141,38 @@ export const testCaseService = {
 
   getTestCaseById: async (testCaseId: string): Promise<TestCase> => {
     return apiClient.get<TestCase>(`/api/testcases/${testCaseId}`);
+  },
+
+  createTestCase: async (data: {
+    name: string;
+    description: string;
+    steps: string[];
+    project_id: string;
+  }): Promise<TestCase> => {
+    return apiClient.post<TestCase>('/api/testcases/', {
+      ...data,
+      status: 'active',
+      source: 'manual',
+    });
+  },
+
+  updateTestCase: async (
+    testCaseId: string,
+    data: {
+      name: string;
+      description: string;
+      steps: string[];
+    },
+  ): Promise<TestCase> => {
+    return apiClient.put<TestCase>(`/api/testcases/${testCaseId}`, {
+      ...data,
+      status: 'active',
+      source: 'manual',
+    });
+  },
+
+  deleteTestCase: async (testCaseId: string): Promise<void> => {
+    return apiClient.delete(`/api/testcases/${testCaseId}`);
   },
 };
 

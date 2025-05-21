@@ -758,6 +758,11 @@ const SidePanel = () => {
     }
   }, [showHistory, showProjects, showTestCases, currentTestCase, resetTestExecution]);
 
+  const handleDismiss = () => {
+    // Just reset the state without updating backend
+    resetTestExecution();
+  };
+
   // Move the pass/fail UI to a separate component for clarity
   const TestResultButtons = () => {
     // Check both state and ref to be safe
@@ -777,7 +782,15 @@ const SidePanel = () => {
 
     return (
       <div
-        className={`mb-2 p-3 rounded-lg ${isDarkMode ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,98%)]' : 'bg-white text-[hsl(0,0%,3.9%)]'} shadow-lg`}>
+        className={`mb-2 p-3 rounded-lg relative ${isDarkMode ? 'bg-[hsl(0,0%,14.9%)] text-[hsl(0,0%,98%)]' : 'bg-white text-[hsl(0,0%,3.9%)]'} shadow-lg`}>
+        <button
+          onClick={handleDismiss}
+          className={`absolute top-2 right-2 p-1 rounded-full hover:bg-opacity-10 ${
+            isDarkMode ? 'hover:bg-white text-white' : 'hover:bg-black text-black'
+          } transition-colors`}
+          aria-label="Dismiss">
+          <FaTimes size={16} />
+        </button>
         <div className="text-center font-medium mb-2">How did this test case perform?</div>
         <div className="flex justify-center gap-4">
           <button
