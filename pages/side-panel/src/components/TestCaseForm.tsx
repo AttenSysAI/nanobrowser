@@ -6,7 +6,7 @@ import LoadingSpinner from './LoadingSpinner';
 
 interface TestCaseFormProps {
   projectId: string;
-  testCase?: TestCase; // If provided, we're editing an existing test case
+  testCase?: TestCase;
   onSave: (testCase: TestCase) => void;
   onCancel: () => void;
   isDarkMode: boolean;
@@ -19,7 +19,6 @@ export default function TestCaseForm({ projectId, testCase, onSave, onCancel, is
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Reset form when testCase prop changes
   useEffect(() => {
     if (testCase) {
       setName(testCase.name);
@@ -33,12 +32,12 @@ export default function TestCaseForm({ projectId, testCase, onSave, onCancel, is
   }, [testCase]);
 
   const handleAddStep = () => {
-    setSteps([...steps, '']);
+    setSteps(prevSteps => [...prevSteps, '']);
   };
 
   const handleRemoveStep = (index: number) => {
     if (steps.length > 1) {
-      setSteps(steps.filter((_, i) => i !== index));
+      setSteps(prevSteps => prevSteps.filter((_, i) => i !== index));
     }
   };
 

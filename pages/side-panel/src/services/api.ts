@@ -1,50 +1,57 @@
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { Project, ProjectsResponse, TestCase, TestCasesResponse } from '../types/project';
 
 export class ApiClient {
-  private baseUrl: string;
+  private axiosInstance: AxiosInstance;
 
   constructor(baseUrl: string | undefined) {
-    this.baseUrl = baseUrl || 'http://localhost:8000';
+    this.axiosInstance = axios.create({
+      baseURL: baseUrl || 'http://localhost:8000',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    this.axiosInstance.interceptors.request.use(
+      async config => {
+        const token = await this.getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      error => {
+        return Promise.reject(error);
+      },
+    );
+
+    this.axiosInstance.interceptors.response.use(
+      (response: AxiosResponse) => response,
+      error => {
+        if (error.response?.status === 401) {
+          throw new Error('Authentication failed: Invalid or expired token');
+        }
+
+        const message = error.response?.data?.message || error.message || 'Unknown error occurred';
+        throw new Error(`API error: ${error.response?.status || 'Network'} - ${message}`);
+      },
+    );
   }
 
-  private async getHeaders(): Promise<Record<string, string>> {
+  private async getToken(): Promise<string | null> {
     return new Promise(resolve => {
       chrome.storage.local.get('appToken', result => {
-        const token = result.appToken || '';
-        resolve({
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        });
+        resolve(result.appToken || null);
       });
     });
   }
 
   async get<T>(path: string, queryParams?: Record<string, string | number>): Promise<T> {
     try {
-      const headers = await this.getHeaders();
-
-      let url = `${this.baseUrl}${path}`;
-      if (queryParams) {
-        const params = new URLSearchParams();
-        Object.entries(queryParams).forEach(([key, value]) => {
-          params.append(key, String(value));
-        });
-        url += `?${params.toString()}`;
-      }
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers,
+      const response = await this.axiosInstance.get<T>(path, {
+        params: queryParams,
       });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Authentication failed: Invalid or expired token');
-        }
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
-      }
-
-      return (await response.json()) as T;
+      return response.data;
     } catch (error) {
       console.error('API GET request failed:', error);
       throw error;
@@ -53,21 +60,8 @@ export class ApiClient {
 
   async post<T>(path: string, data: unknown): Promise<T> {
     try {
-      const headers = await this.getHeaders();
-      const response = await fetch(`${this.baseUrl}${path}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Authentication failed: Invalid or expired token');
-        }
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
-      }
-
-      return (await response.json()) as T;
+      const response = await this.axiosInstance.post<T>(path, data);
+      return response.data;
     } catch (error) {
       console.error('API POST request failed:', error);
       throw error;
@@ -76,21 +70,8 @@ export class ApiClient {
 
   async put<T>(path: string, data: unknown): Promise<T> {
     try {
-      const headers = await this.getHeaders();
-      const response = await fetch(`${this.baseUrl}${path}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Authentication failed: Invalid or expired token');
-        }
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
-      }
-
-      return (await response.json()) as T;
+      const response = await this.axiosInstance.put<T>(path, data);
+      return response.data;
     } catch (error) {
       console.error('API PUT request failed:', error);
       throw error;
@@ -99,18 +80,7 @@ export class ApiClient {
 
   async delete(path: string): Promise<void> {
     try {
-      const headers = await this.getHeaders();
-      const response = await fetch(`${this.baseUrl}${path}`, {
-        method: 'DELETE',
-        headers,
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Authentication failed: Invalid or expired token');
-        }
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
-      }
+      await this.axiosInstance.delete(path);
     } catch (error) {
       console.error('API DELETE request failed:', error);
       throw error;

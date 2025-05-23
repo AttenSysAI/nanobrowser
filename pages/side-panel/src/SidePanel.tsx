@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, createRef } from 'react';
 import { FiSettings, FiLogOut } from 'react-icons/fi';
 import { PiPlusBold } from 'react-icons/pi';
 import { GrHistory } from 'react-icons/gr';
@@ -21,7 +21,7 @@ import { testExecutionService } from './services/api';
 import { authService, UserInfo } from './services/auth';
 import './SidePanel.css';
 
-const DEBUG_MODE = true; // Set to true to enable debug logging
+const DEBUG_MODE = true;
 
 const SidePanel = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -31,6 +31,8 @@ const SidePanel = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [showProjects, setShowProjects] = useState(false);
   const [showTestCases, setShowTestCases] = useState(false);
+  const [isInTestCaseForm, setIsInTestCaseForm] = useState(false);
+  const testCaseListRef = createRef<any>();
   const [chatSessions, setChatSessions] = useState<Array<{ id: string; title: string; createdAt: number }>>([]);
   const [isFollowUpMode, setIsFollowUpMode] = useState(false);
   const [isHistoricalSession, setIsHistoricalSession] = useState(false);
@@ -43,15 +45,13 @@ const SidePanel = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
 
-  // Create refs for tracking test execution
   const sessionIdRef = useRef<string | null>(null);
   const portRef = useRef<chrome.runtime.Port | null>(null);
   const heartbeatIntervalRef = useRef<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const setInputTextRef = useRef<((text: string) => void) | null>(null);
-  const executedTestCaseIdRef = useRef<string | null>(null); // Add ref for test case ID
+  const executedTestCaseIdRef = useRef<string | null>(null);
 
-  // Check for dark mode preference
   useEffect(() => {
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     setIsDarkMode(darkModeMediaQuery.matches);
@@ -68,19 +68,16 @@ const SidePanel = () => {
     sessionIdRef.current = currentSessionId;
   }, [currentSessionId]);
 
-  // Add effect to sync executedTestCaseId with its ref
   useEffect(() => {
     executedTestCaseIdRef.current = executedTestCaseId;
   }, [executedTestCaseId]);
 
-  // Add explicit logging for state changes - only if DEBUG_MODE is enabled
   useEffect(() => {
     if (DEBUG_MODE) {
       console.log('testExecutionCompleted changed:', testExecutionCompleted);
     }
   }, [testExecutionCompleted]);
 
-  // Check for authentication status on component mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -101,7 +98,6 @@ const SidePanel = () => {
   }, []);
 
   const appendMessage = useCallback((newMessage: Message, sessionId?: string | null) => {
-    // Don't save progress messages
     const isProgressMessage = newMessage.content === 'Showing progress...';
 
     setMessages(prev => {
@@ -111,12 +107,10 @@ const SidePanel = () => {
       return [...filteredMessages, newMessage];
     });
 
-    // Use provided sessionId if available, otherwise fall back to sessionIdRef.current
     const effectiveSessionId = sessionId !== undefined ? sessionId : sessionIdRef.current;
 
     console.log('sessionId', effectiveSessionId);
 
-    // Save message to storage if we have a session and it's not a progress message
     if (effectiveSessionId && !isProgressMessage) {
       chatHistoryStore
         .addMessage(effectiveSessionId, newMessage)
@@ -124,10 +118,8 @@ const SidePanel = () => {
     }
   }, []);
 
-  // Handle task completion when the test execution is finished
   const handleTestCompletion = useCallback((testCaseId: string) => {
     console.log('Test execution completed explicitly for ID:', testCaseId);
-    // Force the UI update with a slight delay to ensure state is updated
     setTimeout(() => {
       setTestExecutionCompleted(true);
       setExecutedTestCaseId(testCaseId);
@@ -288,10 +280,9 @@ const SidePanel = () => {
         });
       }
     },
-    [appendMessage, handleTestCompletion], // Add the new handler to dependencies
+    [appendMessage, handleTestCompletion],
   );
 
-  // Stop heartbeat and close connection
   const stopConnection = useCallback(() => {
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current);
@@ -303,9 +294,7 @@ const SidePanel = () => {
     }
   }, []);
 
-  // Setup connection management
   const setupConnection = useCallback(() => {
-    // Only setup if no existing connection
     if (portRef.current) {
       return;
     }
@@ -344,7 +333,6 @@ const SidePanel = () => {
         setShowStopButton(false);
       });
 
-      // Setup heartbeat interval
       if (heartbeatIntervalRef.current) {
         clearInterval(heartbeatIntervalRef.current);
       }
@@ -355,10 +343,10 @@ const SidePanel = () => {
             portRef.current.postMessage({ type: 'heartbeat' });
           } catch (error) {
             console.error('Heartbeat failed:', error);
-            stopConnection(); // Stop connection if heartbeat fails
+            stopConnection();
           }
         } else {
-          stopConnection(); // Stop if port is invalid
+          stopConnection();
         }
       }, 25000);
     } catch (error) {
@@ -368,12 +356,10 @@ const SidePanel = () => {
         content: 'Failed to connect to service worker',
         timestamp: Date.now(),
       });
-      // Clear any references since connection failed
       portRef.current = null;
     }
   }, [handleTaskState, appendMessage, stopConnection]);
 
-  // Add safety check for message sending
   const sendMessage = useCallback(
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     (message: any) => {
@@ -384,7 +370,7 @@ const SidePanel = () => {
         portRef.current.postMessage(message);
       } catch (error) {
         console.error('Failed to send message:', error);
-        stopConnection(); // Stop connection when message sending fails
+        stopConnection();
         throw error;
       }
     },
@@ -396,7 +382,6 @@ const SidePanel = () => {
 
     if (!text.trim()) return;
 
-    // Block sending messages in historical sessions
     if (isHistoricalSession) {
       console.log('Cannot send messages in historical sessions');
       return;
@@ -412,14 +397,12 @@ const SidePanel = () => {
       setInputEnabled(false);
       setShowStopButton(true);
 
-      // Create a new chat session for this task if not in follow-up mode
       if (!isFollowUpMode) {
         const newSession = await chatHistoryStore.createSession(
           text.substring(0, 50) + (text.length > 50 ? '...' : ''),
         );
         console.log('newSession', newSession);
 
-        // Store the session ID in both state and ref
         const sessionId = newSession.id;
         setCurrentSessionId(sessionId);
         sessionIdRef.current = sessionId;
@@ -431,17 +414,13 @@ const SidePanel = () => {
         timestamp: Date.now(),
       };
 
-      // Pass the sessionId directly to appendMessage
       appendMessage(userMessage, sessionIdRef.current);
 
-      // Setup connection if not exists
       if (!portRef.current) {
         setupConnection();
       }
 
-      // Send message using the utility function
       if (isFollowUpMode) {
-        // Send as follow-up task
         await sendMessage({
           type: 'follow_up_task',
           task: text,
@@ -450,7 +429,6 @@ const SidePanel = () => {
         });
         console.log('follow_up_task sent', text, tabId, sessionIdRef.current);
       } else {
-        // Send as new task
         await sendMessage({
           type: 'new_task',
           task: text,
@@ -492,7 +470,6 @@ const SidePanel = () => {
   };
 
   const handleNewChat = () => {
-    // Clear messages and start a new chat
     setMessages([]);
     setCurrentSessionId(null);
     sessionIdRef.current = null;
@@ -500,8 +477,6 @@ const SidePanel = () => {
     setShowStopButton(false);
     setIsFollowUpMode(false);
     setIsHistoricalSession(false);
-
-    // Disconnect any existing connection
     stopConnection();
   };
 
@@ -530,7 +505,7 @@ const SidePanel = () => {
         setCurrentSessionId(fullSession.id);
         setMessages(fullSession.messages);
         setIsFollowUpMode(false);
-        setIsHistoricalSession(true); // Mark this as a historical session
+        setIsHistoricalSession(true);
       }
       setShowHistory(false);
     } catch (error) {
@@ -558,7 +533,6 @@ const SidePanel = () => {
     }
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopConnection();
@@ -696,6 +670,7 @@ const SidePanel = () => {
   // Add this function after handleTestCaseSelect
   const handleClearTestCase = () => {
     setCurrentTestCase(null);
+    setShowTestCases(true);
   };
 
   // Additional cleanup when resetting test execution
@@ -838,13 +813,17 @@ const SidePanel = () => {
         className={`flex flex-col h-[100vh] ${isDarkMode ? 'bg-[hsl(0,0%,3.9%)] text-[hsl(0,0%,98%)]' : 'bg-white text-[hsl(0,0%,3.9%)]'} overflow-hidden border ${isDarkMode ? 'border-[hsl(0,0%,14.9%)]' : 'border-[hsl(0,0%,89.8%)]'} rounded-lg`}>
         <header className="header relative">
           <div className="header-logo">
-            {showHistory || showProjects || showTestCases ? (
+            {showHistory || showProjects || showTestCases || currentTestCase || isInTestCaseForm ? (
               <button
                 type="button"
                 onClick={() => {
                   if (showHistory) handleBackToChat();
                   if (showProjects) handleBackFromProjects();
-                  if (showTestCases) handleBackFromTestCases();
+                  if (showTestCases && !isInTestCaseForm) handleBackFromTestCases();
+                  if (showTestCases && isInTestCaseForm && testCaseListRef.current) {
+                    testCaseListRef.current.handleCancel();
+                  }
+                  if (currentTestCase) handleClearTestCase();
                 }}
                 className={`${isDarkMode ? 'text-[hsl(0,0%,98%)] hover:text-[hsl(0,0%,63.9%)]' : 'text-[hsl(0,0%,9%)] hover:text-[hsl(0,0%,45.1%)]'} cursor-pointer text-lg`}
                 aria-label="Back">
@@ -923,10 +902,12 @@ const SidePanel = () => {
           )}
           {showTestCases && currentProjectId && (
             <TestCaseList
+              ref={testCaseListRef}
               projectId={currentProjectId}
               onTestCaseSelect={handleTestCaseSelect}
               onBackToProjects={handleBackFromTestCases}
               isDarkMode={isDarkMode}
+              onFormViewChange={setIsInTestCaseForm}
             />
           )}
           {!showHistory && !showProjects && !showTestCases && !currentTestCase && (

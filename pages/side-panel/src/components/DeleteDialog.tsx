@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-interface AlertDialogProps {
+interface DeleteDialogProps {
   isOpen: boolean;
   title: string;
   message: string;
@@ -11,7 +11,7 @@ interface AlertDialogProps {
   isDarkMode: boolean;
 }
 
-export default function AlertDialog({
+export default function DeleteDialog({
   isOpen,
   title,
   message,
@@ -20,7 +20,7 @@ export default function AlertDialog({
   onConfirm,
   onCancel,
   isDarkMode,
-}: AlertDialogProps) {
+}: DeleteDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
